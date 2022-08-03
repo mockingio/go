@@ -8,14 +8,10 @@ builds:
   - skip: true
 
 release:
+  prerelease: auto
   github:
     owner: mockingio
     name: mockingio
-
-archives:
-  - format_overrides:
-      - goos: windows
-        format: zip
 
 changelog:
   use: github
