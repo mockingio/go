@@ -7,11 +7,8 @@ before:
 builds:
   - skip: true
 
-release:
-  prerelease: auto
-  github:
-    owner: mockingio
-    name: mockingio
+checksum:
+  name_template: "{{ .ProjectName }}-{{ .Version }}-checksums.txt"
 
 changelog:
   use: github
