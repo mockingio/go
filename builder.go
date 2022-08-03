@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	
+
 	"github.com/mockingio/engine"
 	"github.com/mockingio/engine/mock"
 	"github.com/mockingio/engine/persistent/memory"
@@ -31,7 +31,7 @@ type Headers map[string]string
 
 func New() *Builder {
 	return &Builder{
-		config: &mock.Mock{},
+		config: mock.New(),
 	}
 }
 
