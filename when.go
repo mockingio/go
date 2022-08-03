@@ -1,18 +1,16 @@
-package _go
+package mock
 
 import (
-	"net/http/httptest"
-	"testing"
-
 	"github.com/mockingio/engine/mock"
+	"net/http/httptest"
 )
 
 type When struct {
 	builder *Builder
 }
 
-func (w *When) Start(t *testing.T) *httptest.Server {
-	return w.builder.Start(t)
+func (w *When) Start() (*httptest.Server, error) {
+	return w.builder.Start()
 }
 
 func (w *When) And(target, modifier, operator, value string) *And {

@@ -12,15 +12,15 @@ import (
 	"net/http"
 	"testing"
 
-	mock "github.com/mockingio/go"
+	mock "github.com/mockingio/mock"
 )
 
 func Test_Example(t *testing.T) {
-	srv := mock.
+	srv, _ := mock.
 		New().
 		Get("/hello").
 		Response(http.StatusOK, "hello world").
-		Start(t)
+		Start()
 	defer srv.Close()
 
 	req, _ := http.NewRequest("GET", srv.URL, nil)
@@ -30,12 +30,12 @@ func Test_Example(t *testing.T) {
 }
 
 func Test_Example_WithRules(t *testing.T) {
-	srv := mock.
+	srv, _ := mock.
 		New().
 		Get("/hello").
 		When("cookie", "name", "equal", "Chocolate").
 		Response(http.StatusOK, "hello world").
-		Start(t)
+		Start()
 	defer srv.Close()
 
 	req, _ := http.NewRequest("GET", srv.URL, nil)

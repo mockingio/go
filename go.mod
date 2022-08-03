@@ -1,4 +1,4 @@
-module github.com/mockingio/go
+module github.com/mockingio/mock
 
 go 1.18
 

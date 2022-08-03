@@ -1,10 +1,8 @@
-package _go
+package mock
 
 import (
-	"net/http/httptest"
-	"testing"
-
 	"github.com/mockingio/engine/mock"
+	"net/http/httptest"
 )
 
 type Response struct {
@@ -16,8 +14,8 @@ func (r *Response) Delay(delay int64) *Response {
 	return r
 }
 
-func (r *Response) Start(t *testing.T) *httptest.Server {
-	return r.builder.Start(t)
+func (r *Response) Start() (*httptest.Server, error) {
+	return r.builder.Start()
 }
 
 func (r *Response) When(target, modifier, operator, value string) *When {
@@ -38,8 +36,8 @@ type And struct {
 	builder *Builder
 }
 
-func (a *And) Start(t *testing.T) *httptest.Server {
-	return a.builder.Start(t)
+func (a *And) Start() (*httptest.Server, error) {
+	return a.builder.Start()
 }
 
 func (a *And) And(target, modifier, operator, value string) *And {
@@ -68,6 +66,6 @@ func (o *Or) Or(target, modifier, operator, value string) *Or {
 	return o
 }
 
-func (o *Or) Start(t *testing.T) *httptest.Server {
-	return o.builder.Start(t)
+func (o *Or) Start() (*httptest.Server, error) {
+	return o.builder.Start()
 }

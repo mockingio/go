@@ -1,4 +1,4 @@
-package _go_test
+package mock_test
 
 import (
 	"fmt"
@@ -7,61 +7,72 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	. "github.com/mockingio/go"
+	. "github.com/mockingio/mock"
 )
+
+func TestBuilder_Validation(t *testing.T) {
+	_, err := New().Start()
+	assert.Error(t, err)
+}
 
 func TestBuilder_MatchedRoute(t *testing.T) {
 	t.Run("simple get", func(t *testing.T) {
-		srv := New().
+		srv, err := New().
 			Get("/hello").
 			Response(http.StatusOK, "world").
-			Start(t)
+			Start()
 		defer srv.Close()
 
+		require.NoError(t, err)
 		assertHTTPGETRequest(t, url(srv, "/hello"), 200, "world")
 	})
 
 	t.Run("simple post", func(t *testing.T) {
-		srv := New().
+		srv, err := New().
 			Post("/hello").
 			Response(http.StatusOK, "world").
-			Start(t)
+			Start()
 		defer srv.Close()
 
+		require.NoError(t, err)
 		assertHTTPPOSTRequest(t, url(srv, "/hello"), "", 200, "world")
 	})
 
 	t.Run("simple put", func(t *testing.T) {
-		srv := New().
+		srv, err := New().
 			Put("/hello").
 			Response(http.StatusOK, "world").
-			Start(t)
+			Start()
 		defer srv.Close()
 
+		require.NoError(t, err)
 		assertHTTPPUTRequest(t, url(srv, "/hello"), "", 200, "world")
 	})
 
 	t.Run("simple options", func(t *testing.T) {
-		srv := New().
+		srv, err := New().
 			Option("/hello").
 			Response(http.StatusOK, "world").
-			Start(t)
+			Start()
 		defer srv.Close()
 
+		require.NoError(t, err)
 		assertHTTPOPTIONSRequest(t, url(srv, "/hello"), "", 200, "world")
 	})
 
 	t.Run("simple put", func(t *testing.T) {
-		srv := New().
+		srv, err := New().
 			Delete("/hello").
 			Response(http.StatusOK, "world").
-			Start(t)
+			Start()
 		defer srv.Close()
 
+		require.NoError(t, err)
 		assertHTTPDELETETRequest(t, url(srv, "/hello"), "", 200, "world")
 	})
 
@@ -69,43 +80,47 @@ func TestBuilder_MatchedRoute(t *testing.T) {
 		builder := New()
 		builder.Get("/hello").
 			Response(http.StatusOK, "world")
-		srv := builder.Start(t)
+		srv, err := builder.Start()
 		defer srv.Close()
 
+		require.NoError(t, err)
 		assertHTTPGETRequest(t, url(srv, "/hello"), 200, "world")
 	})
 
 	t.Run("with a condition", func(t *testing.T) {
-		srv := New().
+		srv, err := New().
 			Get("/hello").
 			Response(http.StatusOK, "world").
 			When(Cookie, "name", Equal, "Jack").
-			Start(t)
+			Start()
 
+		require.NoError(t, err)
 		assertHTTPGETRequest(t, url(srv, "/hello"), 200, "world")
 	})
 
 	t.Run("with AND condition", func(t *testing.T) {
-		srv := New().
+		srv, err := New().
 			Get("/hello").
 			Response(http.StatusOK, "world").
 			When(Cookie, "name", Equal, "Jack").
 			And(Cookie, "name", Regex, "[a-zA-Z]+").
 			And(Header, "x-type", Regex, "x-men").
-			Start(t)
+			Start()
 
+		require.NoError(t, err)
 		assertHTTPGETRequest(t, url(srv, "/hello"), 200, "world")
 	})
 
 	t.Run("with OR condition", func(t *testing.T) {
-		srv := New().
+		srv, err := New().
 			Get("/hello").
 			Response(http.StatusOK, "world").
 			When(Cookie, "name", Equal, "Jack").
 			Or(Header, "name", Regex, "non exist value").
 			Or(Header, "age", Equal, "18").
-			Start(t)
+			Start()
 
+		require.NoError(t, err)
 		assertHTTPGETRequest(t, url(srv, "/hello"), 200, "world")
 	})
 
@@ -120,56 +135,76 @@ func TestBuilder_MatchedRoute(t *testing.T) {
 		builder.Post("/hello3").
 			Response(http.StatusOK, "world3")
 
-		srv := builder.Start(t)
+		srv, err := builder.Start()
 		defer srv.Close()
 
+		require.NoError(t, err)
 		assertHTTPGETRequest(t, url(srv, "/hello1"), 200, "world1")
 		assertHTTPGETRequest(t, url(srv, "/hello2"), 200, "world2")
 		assertHTTPPOSTRequest(t, url(srv, "/hello3"), "", 200, "world3")
+	})
+
+	t.Run("with delay", func(t *testing.T) {
+		srv, err := New().
+			Get("/hello").
+			Response(http.StatusOK, "world").
+			Delay(50).
+			Start()
+		defer srv.Close()
+
+		timer := time.Now()
+
+		require.NoError(t, err)
+		assertHTTPGETRequest(t, url(srv, "/hello"), 200, "world")
+		assert.Greater(t, time.Since(timer), 50*time.Millisecond)
 	})
 }
 
 func TestBuilder_NoMatchedRoute(t *testing.T) {
 	t.Run("simple get", func(t *testing.T) {
-		srv := New().
+		srv, err := New().
 			Get("/hello").
 			Response(http.StatusOK, "world").
-			Start(t)
+			Start()
 		defer srv.Close()
 
+		require.NoError(t, err)
 		assertNoMatchHTTPGETRequest(t, url(srv, "/hellox"), 200)
 	})
 
 	t.Run("with a condition", func(t *testing.T) {
-		srv := New().
+		srv, err := New().
 			Get("/hello").
 			Response(http.StatusOK, "world").
 			When(Cookie, "name", Equal, "Jack not found").
-			Start(t)
+			Start()
 
+		require.NoError(t, err)
 		assertNoMatchHTTPGETRequest(t, url(srv, "/hello"), 200)
 	})
 
 	t.Run("with AND condition", func(t *testing.T) {
-		srv := New().
+		srv, err := New().
 			Get("/hello").
 			Response(http.StatusOK, "world").
 			When(Cookie, "name", Equal, "Jack").
 			And(Cookie, "name", Regex, "[a-zA-Z]+").
 			And(Header, "x-type", Regex, "x-women").
-			Start(t)
+			Start()
 
+		require.NoError(t, err)
 		assertNoMatchHTTPGETRequest(t, url(srv, "/hello"), 200)
 	})
 
 	t.Run("with OR condition", func(t *testing.T) {
-		srv := New().
+		srv, err := New().
 			Get("/hello").
 			Response(http.StatusOK, "world").
 			When(Cookie, "name", Equal, "Jack not found").
 			Or(Header, "name", Regex, "non exist value").
-			Start(t)
+			Start()
 
+		require.NoError(t, err)
 		assertNoMatchHTTPGETRequest(t, url(srv, "/hello"), 200)
 	})
 }

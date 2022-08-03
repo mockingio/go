@@ -1,11 +1,11 @@
-package _go
+package mock
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"testing"
-
+	
 	"github.com/google/uuid"
 
 	"github.com/mockingio/engine"
@@ -41,10 +41,10 @@ type Builder struct {
 	config   *mock.Mock
 }
 
-func (b *Builder) Start(t *testing.T) *httptest.Server {
+func (b *Builder) Start() (*httptest.Server, error) {
 	b.clear()
 	if err := b.config.Validate(); err != nil {
-		t.Errorf("invalid config: %v", err)
+		return nil, fmt.Errorf("invalid config: %v", err)
 	}
 	id := uuid.NewString()
 	b.config.ID = id
@@ -55,7 +55,7 @@ func (b *Builder) Start(t *testing.T) *httptest.Server {
 
 	m := engine.New(id, mem)
 
-	return httptest.NewServer(http.HandlerFunc(m.Handler))
+	return httptest.NewServer(http.HandlerFunc(m.Handler)), nil
 }
 
 func (b *Builder) Post(url string) *Builder {
