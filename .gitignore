@@ -1,0 +1,7 @@
+.DS_Store
+.idea
+vendor
+bin
+dist/
+coverage.out
+testdata/
