@@ -5,6 +5,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/mockingio/go)](https://goreportcard.com/report/github.com/mockingio/go)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+This library is used to mock Golang HTTP Server requests for unit tests. 
+
 ### Go package usage
 
 ```go
