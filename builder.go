@@ -58,11 +58,6 @@ func (b *Builder) Start(t *testing.T) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(m.Handler))
 }
 
-func (b *Builder) Port(port string) *Builder {
-	b.config.Port = port
-	return b
-}
-
 func (b *Builder) Post(url string) *Builder {
 	b.clear()
 	b.route = &mock.Route{
@@ -102,7 +97,7 @@ func (b *Builder) Delete(url string) *Builder {
 func (b *Builder) Option(url string) *Builder {
 	b.clear()
 	b.route = &mock.Route{
-		Method: "OPTION",
+		Method: "OPTIONS",
 		Path:   url,
 	}
 	return b

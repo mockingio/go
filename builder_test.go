@@ -45,6 +45,16 @@ func TestBuilder_MatchedRoute(t *testing.T) {
 		assertHTTPPUTRequest(t, url(srv, "/hello"), "", 200, "world")
 	})
 
+	t.Run("simple options", func(t *testing.T) {
+		srv := New().
+			Option("/hello").
+			Response(http.StatusOK, "world").
+			Start(t)
+		defer srv.Close()
+
+		assertHTTPOPTIONSRequest(t, url(srv, "/hello"), "", 200, "world")
+	})
+
 	t.Run("simple put", func(t *testing.T) {
 		srv := New().
 			Delete("/hello").
@@ -212,6 +222,29 @@ func assertHTTPGETRequest(t *testing.T, url string, expectedStatusCode int, expe
 
 func assertHTTPPOSTRequest(t *testing.T, url, payload string, expectedStatusCode int, expectedResponseBody string) {
 	req, err := http.NewRequest("POST", url, strings.NewReader(payload))
+	require.NoError(t, err)
+
+	req.Header.Set("x-type", "x-men")
+	req.AddCookie(&http.Cookie{
+		Name:  "name",
+		Value: "Jack",
+	})
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	require.NoError(t, err)
+
+	assert.Equal(t, expectedStatusCode, resp.StatusCode)
+
+	body, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+
+	assert.Equal(t, expectedResponseBody, string(body))
+}
+
+func assertHTTPOPTIONSRequest(t *testing.T, url, payload string, expectedStatusCode int, expectedResponseBody string) {
+	req, err := http.NewRequest("OPTIONS", url, strings.NewReader(payload))
 	require.NoError(t, err)
 
 	req.Header.Set("x-type", "x-men")
